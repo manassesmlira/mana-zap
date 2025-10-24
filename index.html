@@ -32,7 +32,7 @@
             font-weight: bold;
             color: #555;
         }
-        textarea, input[type="text"], select { /* Adicionado 'select' aqui */
+        textarea, input[type="text"], select {
             width: calc(100% - 20px);
             padding: 10px;
             margin-bottom: 10px;
@@ -111,7 +111,7 @@
             padding: 5px 10px;
             font-size: 0.85em;
         }
-        .group-category { /* Estilo para a categoria */
+        .group-category {
             font-size: 0.8em;
             color: #6c757d;
             margin-left: 5px;
@@ -125,6 +125,14 @@
     <!-- Seção para Envio de Mensagens -->
     <div class="section">
         <h2>Enviar Mensagem para Grupos</h2>
+        <!-- NOVO CAMPO: Seletor de Categoria para Envio -->
+        <div>
+            <label for="categoryFilterSelect">Enviar para Grupos da Categoria:</label>
+            <select id="categoryFilterSelect">
+                <option value="all">Todos os Grupos</option>
+                <!-- As categorias serão populadas aqui pelo JavaScript -->
+            </select>
+        </div>
         <label for="messageInput">Sua Mensagem:</label>
         <textarea id="messageInput" placeholder="Digite sua mensagem aqui..."></textarea>
         <button id="sendMessageBtn">Enviar Mensagem</button>
@@ -143,11 +151,9 @@
             <label for="groupNameInput">Nome do Grupo (para identificação):</label>
             <input type="text" id="groupNameInput" placeholder="Ex: Grupo de Teste">
         </div>
-        <!-- NOVO CAMPO: Categoria do Grupo -->
         <div>
             <label for="groupCategoryInput">Categoria do Grupo:</label>
             <input type="text" id="groupCategoryInput" placeholder="Ex: Trabalho, Devocional, Família">
-            <!-- Poderíamos usar um <select> aqui com opções pré-definidas, mas um input é mais flexível por enquanto -->
         </div>
         <button id="addGroupBtn">Adicionar Grupo</button>
         <div id="groupStatus" style="display: none;"></div>

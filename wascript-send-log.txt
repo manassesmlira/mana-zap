@@ -7,3 +7,9 @@ _para ver as tabelas completas, confira o estudo no nosso..." para 2 grupo(s).
 2025-10-24T17:17:33.183Z - INFO: Mensagem enviada com sucesso para 5514999020909-1525305185@g.us
 2025-10-24T17:17:35.793Z - INFO: Mensagem enviada com sucesso para 5511996144534-1614795272@g.us
 2025-10-24T17:17:36.810Z - SUCCESS: Processo de envio para todos os grupos concluído.
+2025-10-24T17:28:36.399Z - INFO: Iniciando envio da mensagem: "oi..." para 1 grupo(s).
+2025-10-24T17:28:37.996Z - INFO: Mensagem enviada com sucesso para 5511968465234@g.us
+2025-10-24T17:28:39.001Z - SUCCESS: Processo de envio para todos os grupos concluído.
+2025-10-24T17:31:58.032Z - INFO: Iniciando envio da mensagem: "olá..." para 1 grupo(s).
+2025-10-24T17:31:59.435Z - INFO: Mensagem enviada com sucesso para 5511968465234@c.us
+2025-10-24T17:32:00.438Z - SUCCESS: Processo de envio para todos os grupos concluído.

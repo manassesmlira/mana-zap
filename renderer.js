@@ -16,7 +16,7 @@ function showStatus(element, message, type) {
 function clearGroupInputs() {
     document.getElementById('groupIdInput').value = '';
     document.getElementById('groupNameInput').value = '';
-    document.getElementById('groupCategoryInput').value = ''; // Limpa o novo campo de categoria
+    document.getElementById('groupCategoryInput').value = '';
 }
 
 /**
@@ -34,9 +34,8 @@ async function renderGroups(groups) {
         return;
     }
 
-    // Opcional: Agrupar por categoria antes de renderizar
     const groupedGroups = groups.reduce((acc, group) => {
-        const category = group.category || 'Sem Categoria'; // Garante uma categoria padrão
+        const category = group.category || 'Sem Categoria';
         if (!acc[category]) {
             acc[category] = [];
         }
@@ -44,7 +43,6 @@ async function renderGroups(groups) {
         return acc;
     }, {});
 
-    // Renderiza os grupos agrupados
     for (const category in groupedGroups) {
         const categoryHeader = document.createElement('h4');
         categoryHeader.textContent = category;
@@ -67,7 +65,6 @@ async function renderGroups(groups) {
         });
     }
 
-    // Adiciona event listeners para os botões de exclusão
     document.querySelectorAll('.delete-group-btn').forEach(button => {
         button.addEventListener('click', async (event) => {
             const groupIdToDelete = event.target.dataset.groupId;
@@ -78,30 +75,63 @@ async function renderGroups(groups) {
     });
 }
 
+/**
+ * Popula o dropdown de seleção de categorias para envio de mensagens.
+ * @param {Array<Object>} groups A lista completa de grupos.
+ */
+function populateCategoryFilter(groups) {
+    const categoryFilterSelect = document.getElementById('categoryFilterSelect');
+    categoryFilterSelect.innerHTML = '<option value="all">Todos os Grupos</option>'; // Opção padrão
+
+    const uniqueCategories = [...new Set(groups.map(group => group.category).filter(Boolean))]; // Pega categorias únicas e remove vazias
+    uniqueCategories.sort().forEach(category => { // Ordena e adiciona ao dropdown
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        categoryFilterSelect.appendChild(option);
+    });
+}
+
 // --- Manipuladores de Eventos ---
 
+/**
+ * Manipula o clique no botão "Enviar Mensagem", agora com filtro por categoria.
+ */
 async function sendMessageHandler() {
     const messageInput = document.getElementById('messageInput');
     const messageText = messageInput.value.trim();
     const messageStatus = document.getElementById('messageStatus');
+    const categoryFilterSelect = document.getElementById('categoryFilterSelect');
+    const selectedCategory = categoryFilterSelect.value; // Pega a categoria selecionada
 
+    // Obtém a lista completa de grupos
     const groupsResponse = await window.api.getGroups();
     if (!groupsResponse.success) {
         showStatus(messageStatus, `Erro ao obter grupos para envio: ${groupsResponse.error}`, 'error');
         return;
     }
-    const groupIds = groupsResponse.data.map(g => g.id);
+    let allGroups = groupsResponse.data;
+
+    // Filtra os grupos com base na categoria selecionada
+    let groupsToSend = [];
+    if (selectedCategory === 'all') {
+        groupsToSend = allGroups;
+    } else {
+        groupsToSend = allGroups.filter(group => group.category === selectedCategory);
+    }
+
+    const groupIds = groupsToSend.map(g => g.id);
 
     if (!messageText) {
         showStatus(messageStatus, 'Por favor, digite uma mensagem para enviar.', 'error');
         return;
     }
     if (groupIds.length === 0) {
-        showStatus(messageStatus, 'Nenhum grupo cadastrado. Adicione grupos antes de enviar.', 'error');
+        showStatus(messageStatus, `Nenhum grupo encontrado na categoria "${selectedCategory}".`, 'error');
         return;
     }
 
-    if (!confirm(`Tem certeza que deseja enviar esta mensagem para ${groupIds.length} grupo(s)?`)) {
+    if (!confirm(`Tem certeza que deseja enviar esta mensagem para ${groupIds.length} grupo(s) da categoria "${selectedCategory}"?`)) {
         return;
     }
 
@@ -110,7 +140,7 @@ async function sendMessageHandler() {
         const response = await window.api.sendMessage(messageText, groupIds);
 
         if (response.success) {
-            showStatus(messageStatus, '✅ Mensagem enviada com sucesso para todos os grupos!', 'success');
+            showStatus(messageStatus, `✅ Mensagem enviada com sucesso para ${groupIds.length} grupo(s)!`, 'success');
             messageInput.value = '';
         } else {
             showStatus(messageStatus, `❌ Erro ao enviar mensagem: ${response.error}`, 'error');
@@ -121,32 +151,28 @@ async function sendMessageHandler() {
     }
 }
 
-/**
- * Manipula o clique no botão "Adicionar Grupo", agora capturando a categoria.
- */
 async function addGroupHandler() {
     const groupIdInput = document.getElementById('groupIdInput');
     const groupNameInput = document.getElementById('groupNameInput');
-    const groupCategoryInput = document.getElementById('groupCategoryInput'); // Novo input
+    const groupCategoryInput = document.getElementById('groupCategoryInput');
     const groupStatus = document.getElementById('groupStatus');
 
     const id = groupIdInput.value.trim();
     const name = groupNameInput.value.trim();
-    const category = groupCategoryInput.value.trim(); // Captura o valor da categoria
+    const category = groupCategoryInput.value.trim();
 
-    if (!id || !name || !category) { // Validação para a categoria
+    if (!id || !name || !category) {
         showStatus(groupStatus, 'Por favor, preencha o ID, o Nome e a Categoria do Grupo.', 'error');
         return;
     }
 
     try {
-        // Chama a função addGroup exposta pelo preload.js, passando a categoria
         const response = await window.api.addGroup(id, name, category);
 
         if (response.success) {
             showStatus(groupStatus, `✅ Grupo "${name}" (${category}) adicionado com sucesso!`, 'success');
             clearGroupInputs();
-            loadAndRenderGroups();
+            loadAndRenderGroups(); // Recarrega e renderiza grupos e categorias
         } else {
             showStatus(groupStatus, `❌ Erro ao adicionar grupo: ${response.error}`, 'error');
         }
@@ -163,7 +189,7 @@ async function deleteGroupHandler(groupId) {
 
         if (response.success) {
             showStatus(groupStatus, `✅ Grupo com ID "${groupId}" excluído com sucesso!`, 'success');
-            loadAndRenderGroups();
+            loadAndRenderGroups(); // Recarrega e renderiza grupos e categorias
         } else {
             showStatus(groupStatus, `❌ Erro ao excluir grupo: ${response.error}`, 'error');
         }
@@ -173,20 +199,27 @@ async function deleteGroupHandler(groupId) {
     }
 }
 
+/**
+ * Carrega os grupos do processo principal, os renderiza na interface e popula o filtro de categorias.
+ */
 async function loadAndRenderGroups() {
     const groupStatus = document.getElementById('groupStatus');
     try {
         const response = await window.api.getGroups();
         if (response.success) {
-            renderGroups(response.data);
+            const groups = response.data;
+            renderGroups(groups); // Renderiza a lista de grupos
+            populateCategoryFilter(groups); // Popula o dropdown de categorias
         } else {
             showStatus(groupStatus, `❌ Erro ao carregar grupos: ${response.error}`, 'error');
             renderGroups([]);
+            populateCategoryFilter([]); // Limpa o filtro de categorias em caso de erro
         }
     } catch (error) {
         console.error('Erro ao carregar grupos:', error);
         showStatus(groupStatus, `❌ Erro inesperado ao carregar grupos: ${error.message}`, 'error');
         renderGroups([]);
+        populateCategoryFilter([]);
     }
 }
 
@@ -199,5 +232,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('addGroupBtn').addEventListener('click', addGroupHandler);
 
-    loadAndRenderGroups();
+    loadAndRenderGroups(); // Carrega tudo ao iniciar
 });
