@@ -1,88 +1,92 @@
 // wascriptService.js
 
-// Importa o módulo axios para fazer requisições HTTP para a API do Wascript
 const axios = require('axios');
-// Importa o módulo fs para lidar com o sistema de arquivos (para o log)
 const fs = require('fs');
-// O módulo path é útil para construir caminhos de arquivo de forma segura
 const path = require('path');
 
-// Define o caminho para o arquivo de log.
-// Usamos path.join para garantir que o caminho seja correto em diferentes sistemas operacionais.
-const LOG_FILE_PATH = path.join(__dirname, 'wascript-send-log.txt');
+// Caminho para o arquivo de log
+const logFilePath = path.join(__dirname, 'wascript-send-log.txt');
 
 /**
- * Função auxiliar para registrar mensagens em um arquivo de log e no console.
- * @param {string} type O tipo da mensagem (INFO, WARN, ERROR, SUCCESS).
- * @param {string} message O texto da mensagem a ser logada.
+ * Função auxiliar para escrever logs no arquivo e no console.
+ * @param {string} message A mensagem a ser logada.
  */
-async function logMessage(type, message) {
-    try {
-        const logEntry = `${new Date().toISOString()} - ${type}: ${message}\n`;
-        // Adiciona a entrada ao arquivo de log de forma síncrona para garantir que seja escrita
-        fs.appendFileSync(LOG_FILE_PATH, logEntry);
-        // Também exibe no console do processo principal do Electron
-        console.log(logEntry.trim());
-    } catch (error) {
-        // Se houver um erro ao salvar o log, apenas exibe no console
-        console.error('❌ Erro ao salvar log:', error);
-    }
+function log(message) {
+    const timestamp = new Date().toISOString();
+    const logMessage = `[${timestamp}] ${message}\n`;
+    console.log(logMessage.trim()); // Também loga no console
+    fs.appendFile(logFilePath, logMessage, (err) => {
+        if (err) {
+            console.error('❌ Erro ao escrever no arquivo de log:', err);
+        }
+    });
 }
 
 /**
- * Envia uma mensagem de texto para uma lista de grupos do WhatsApp usando a API do Wascript.
- *
+ * Envia uma mensagem para múltiplos grupos do WhatsApp usando a API do WaScript.
  * @param {string} messageText O texto da mensagem a ser enviada.
- * @param {Array<string>} groupIds Uma lista de IDs de grupos do WhatsApp para os quais a mensagem será enviada.
- * @param {string} wascriptToken O token de autenticação da API do Wascript.
+ * @param {Array<string>} groupIds Uma lista de IDs de grupos do WhatsApp.
+ * @param {string} token O token de autenticação da API do WaScript.
+ * @param {number} intervalInSeconds O intervalo em segundos entre cada envio de mensagem.
  * @returns {Promise<Array<Object>>} Uma promessa que resolve com os resultados de cada envio.
  */
-async function sendQuickMessage(messageText, groupIds, wascriptToken) {
-    const results = []; // Array para armazenar os resultados de cada envio
+async function sendQuickMessage(messageText, groupIds, token, intervalInSeconds) {
+    const results = [];
+    // NOVA URL DA API, conforme o código que funciona
+    const baseApiUrl = 'https://api-whatsapp.wascript.com.br/api/enviar-texto';
 
-    await logMessage('INFO', `Iniciando envio da mensagem: "${messageText.substring(0, 100)}..." para ${groupIds.length} grupo(s).`);
+    // Converte o intervalo de segundos para milissegundos
+    const intervalInMillis = intervalInSeconds * 1000;
 
-    // Itera sobre cada ID de grupo fornecido
-    for (const groupId of groupIds) {
+    log(`⚙️ Iniciando envio para ${groupIds.length} grupos com intervalo de ${intervalInSeconds} segundos.`);
+
+    for (let i = 0; i < groupIds.length; i++) {
+        const groupId = groupIds[i];
+        log(`➡️ Tentando enviar para o grupo: ${groupId} (Grupo ${i + 1} de ${groupIds.length})`);
+
         try {
-            const url = `https://api-whatsapp.wascript.com.br/api/enviar-texto/${wascriptToken}`;
-            const body = {
-                "phone": groupId, // O ID do grupo é o "telefone" para a API
+            // Constrói a URL completa com o token
+            const urlWithToken = `${baseApiUrl}/${token}`;
+
+            // Corpo da requisição, usando "phone" e "message"
+            const requestBody = {
+                "phone": groupId, // O ID do grupo agora é "phone"
                 "message": messageText
             };
 
-            // Faz a requisição POST para a API do Wascript
-            const res = await axios.post(url, body, {
-                headers: { "Content-Type": "application/json" }
+            const response = await axios.post(urlWithToken, requestBody, {
+                headers: {
+                    'Content-Type': 'application/json' // O cabeçalho Authorization não é mais necessário
+                }
             });
 
-            // Verifica se a API retornou um erro (sucesso: false)
-            if (res.data.success === false) {
-                const errorMessage = `API retornou erro para ${groupId}: ${JSON.stringify(res.data)}`;
-                await logMessage('ERROR', errorMessage);
-                results.push({ groupId, success: false, error: errorMessage });
+            // A verificação de sucesso também pode ter mudado, vamos verificar a estrutura da resposta
+            // Assumindo que 'success: true' ainda é um indicador, ou que a ausência de erro já é sucesso.
+            if (response.data && response.data.success === true) { // Ajustado para a propriedade 'success'
+                log(`✅ Sucesso ao enviar para o grupo ${groupId}.`);
+                results.push({ groupId, status: 'success', response: response.data });
             } else {
-                await logMessage('INFO', `Mensagem enviada com sucesso para ${groupId}`);
-                results.push({ groupId, success: true, data: res.data });
+                // Se a API retornar um status 200 mas com 'success: false' ou outra indicação de falha
+                log(`⚠️ Falha reportada pela API para o grupo ${groupId}: ${response.data ? JSON.stringify(response.data) : 'Resposta inesperada'}`);
+                results.push({ groupId, status: 'failed', error: response.data || 'Resposta inesperada' });
             }
-
-            // Pequena pausa entre os envios para evitar sobrecarregar a API ou ser bloqueado
-            // Você pode ajustar este valor se necessário. 1 segundo (1000ms) é um bom ponto de partida.
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
         } catch (error) {
-            // Captura erros de rede ou outros erros durante a requisição
-            const errorMessage = `Erro ao enviar para ${groupId}: ${error.message}`;
-            await logMessage('ERROR', errorMessage);
-            results.push({ groupId, success: false, error: errorMessage });
+            const errorMessage = error.response ? JSON.stringify(error.response.data) : error.message;
+            log(`❌ Erro ao enviar para o grupo ${groupId}: ${errorMessage}`);
+            results.push({ groupId, status: 'error', error: errorMessage });
+        }
+
+        // Se não for o último grupo, espera o intervalo definido
+        if (i < groupIds.length - 1) {
+            log(`⏳ Aguardando ${intervalInSeconds} segundos antes de enviar para o próximo grupo...`);
+            await new Promise(resolve => setTimeout(resolve, intervalInMillis));
         }
     }
 
-    await logMessage('SUCCESS', 'Processo de envio para todos os grupos concluído.');
-    return results; // Retorna os resultados detalhados de cada envio
+    log('🏁 Todos os envios foram processados.');
+    return results;
 }
 
-// Exporta a função sendQuickMessage para que possa ser usada por outros módulos (como main.js)
 module.exports = {
     sendQuickMessage
 };

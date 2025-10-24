@@ -5,7 +5,6 @@ const path = require('path');
 require('dotenv').config();
 
 const { sendQuickMessage } = require('./wascriptService');
-// Importa as funções atualizadas do groupStorage
 const { getGroups, addGroup, deleteGroup } = require('./groupStorage');
 
 const WASCRIPT_TOKEN = process.env.WASCRIPT_TOKEN;
@@ -65,16 +64,11 @@ ipcMain.handle('get-groups', async () => {
     }
 });
 
-/**
- * Manipulador para adicionar um novo grupo, agora recebendo a categoria.
- * Recebe o ID, o nome e a categoria do grupo da interface.
- */
-ipcMain.handle('add-group', async (event, { id, name, category }) => { // Adicionado 'category' aqui
+ipcMain.handle('add-group', async (event, { id, name, category }) => {
     try {
-        if (!id || !name || !category) { // Validação para a nova categoria
+        if (!id || !name || !category) {
             throw new Error('ID, Nome e Categoria do grupo são obrigatórios.');
         }
-        // Repassa todos os parâmetros, incluindo a categoria, para groupStorage.addGroup
         addGroup(id, name, category);
         console.log(`✅ Grupo adicionado: ${name} (${id}) na categoria ${category}`);
         return { success: true };
@@ -98,7 +92,10 @@ ipcMain.handle('delete-group', async (event, groupId) => {
     }
 });
 
-ipcMain.handle('send-message', async (event, { messageText, groupIds }) => {
+/**
+ * Manipulador para enviar mensagem, agora recebendo o intervalo entre envios.
+ */
+ipcMain.handle('send-message', async (event, { messageText, groupIds, intervalInSeconds }) => { // Adicionado 'intervalInSeconds' aqui
     try {
         if (!WASCRIPT_TOKEN) {
             throw new Error('WASCRIPT_TOKEN não configurado. Verifique seu arquivo .env.');
@@ -109,9 +106,14 @@ ipcMain.handle('send-message', async (event, { messageText, groupIds }) => {
         if (!groupIds || groupIds.length === 0) {
             throw new Error('Nenhum grupo selecionado para envio. Adicione grupos primeiro.');
         }
+        // Validação adicional para o intervalo no backend
+        if (isNaN(intervalInSeconds) || intervalInSeconds < 13) {
+            throw new Error('O intervalo de envio deve ser um número e no mínimo 13 segundos.');
+        }
 
-        console.log(`🚀 Iniciando envio da mensagem: "${messageText.substring(0, 50)}..." para ${groupIds.length} grupo(s).`);
-        const results = await sendQuickMessage(messageText, groupIds, WASCRIPT_TOKEN);
+        console.log(`🚀 Iniciando envio da mensagem: "${messageText.substring(0, 50)}..." para ${groupIds.length} grupo(s) com intervalo de ${intervalInSeconds}s.`);
+        // Repassa o intervalo para a função sendQuickMessage
+        const results = await sendQuickMessage(messageText, groupIds, WASCRIPT_TOKEN, intervalInSeconds);
         console.log('✅ Envio concluído. Resultados:', results);
         return { success: true, data: results };
     } catch (error) {

@@ -81,10 +81,10 @@ async function renderGroups(groups) {
  */
 function populateCategoryFilter(groups) {
     const categoryFilterSelect = document.getElementById('categoryFilterSelect');
-    categoryFilterSelect.innerHTML = '<option value="all">Todos os Grupos</option>'; // Opção padrão
+    categoryFilterSelect.innerHTML = '<option value="all">Todos os Grupos</option>';
 
-    const uniqueCategories = [...new Set(groups.map(group => group.category).filter(Boolean))]; // Pega categorias únicas e remove vazias
-    uniqueCategories.sort().forEach(category => { // Ordena e adiciona ao dropdown
+    const uniqueCategories = [...new Set(groups.map(group => group.category).filter(Boolean))];
+    uniqueCategories.sort().forEach(category => {
         const option = document.createElement('option');
         option.value = category;
         option.textContent = category;
@@ -95,16 +95,24 @@ function populateCategoryFilter(groups) {
 // --- Manipuladores de Eventos ---
 
 /**
- * Manipula o clique no botão "Enviar Mensagem", agora com filtro por categoria.
+ * Manipula o clique no botão "Enviar Mensagem", agora com filtro por categoria e intervalo.
  */
 async function sendMessageHandler() {
     const messageInput = document.getElementById('messageInput');
     const messageText = messageInput.value.trim();
     const messageStatus = document.getElementById('messageStatus');
     const categoryFilterSelect = document.getElementById('categoryFilterSelect');
-    const selectedCategory = categoryFilterSelect.value; // Pega a categoria selecionada
+    const selectedCategory = categoryFilterSelect.value;
+    const sendIntervalInput = document.getElementById('sendIntervalInput'); // Novo input
+    let intervalInSeconds = parseInt(sendIntervalInput.value, 10); // Converte para número
 
-    // Obtém a lista completa de grupos
+    // Validação do intervalo
+    if (isNaN(intervalInSeconds) || intervalInSeconds < 13) {
+        showStatus(messageStatus, 'O intervalo de envio deve ser um número e no mínimo 13 segundos.', 'error');
+        sendIntervalInput.value = 13; // Reseta para o mínimo seguro
+        return;
+    }
+
     const groupsResponse = await window.api.getGroups();
     if (!groupsResponse.success) {
         showStatus(messageStatus, `Erro ao obter grupos para envio: ${groupsResponse.error}`, 'error');
@@ -112,7 +120,6 @@ async function sendMessageHandler() {
     }
     let allGroups = groupsResponse.data;
 
-    // Filtra os grupos com base na categoria selecionada
     let groupsToSend = [];
     if (selectedCategory === 'all') {
         groupsToSend = allGroups;
@@ -131,13 +138,14 @@ async function sendMessageHandler() {
         return;
     }
 
-    if (!confirm(`Tem certeza que deseja enviar esta mensagem para ${groupIds.length} grupo(s) da categoria "${selectedCategory}"?`)) {
+    if (!confirm(`Tem certeza que deseja enviar esta mensagem para ${groupIds.length} grupo(s) da categoria "${selectedCategory}" com intervalo de ${intervalInSeconds} segundos?`)) {
         return;
     }
 
     showStatus(messageStatus, 'Enviando mensagem...', 'secondary');
     try {
-        const response = await window.api.sendMessage(messageText, groupIds);
+        // Chama a função sendMessage exposta pelo preload.js, passando o intervalo
+        const response = await window.api.sendMessage(messageText, groupIds, intervalInSeconds);
 
         if (response.success) {
             showStatus(messageStatus, `✅ Mensagem enviada com sucesso para ${groupIds.length} grupo(s)!`, 'success');
@@ -172,7 +180,7 @@ async function addGroupHandler() {
         if (response.success) {
             showStatus(groupStatus, `✅ Grupo "${name}" (${category}) adicionado com sucesso!`, 'success');
             clearGroupInputs();
-            loadAndRenderGroups(); // Recarrega e renderiza grupos e categorias
+            loadAndRenderGroups();
         } else {
             showStatus(groupStatus, `❌ Erro ao adicionar grupo: ${response.error}`, 'error');
         }
@@ -189,7 +197,7 @@ async function deleteGroupHandler(groupId) {
 
         if (response.success) {
             showStatus(groupStatus, `✅ Grupo com ID "${groupId}" excluído com sucesso!`, 'success');
-            loadAndRenderGroups(); // Recarrega e renderiza grupos e categorias
+            loadAndRenderGroups();
         } else {
             showStatus(groupStatus, `❌ Erro ao excluir grupo: ${response.error}`, 'error');
         }
@@ -199,21 +207,18 @@ async function deleteGroupHandler(groupId) {
     }
 }
 
-/**
- * Carrega os grupos do processo principal, os renderiza na interface e popula o filtro de categorias.
- */
 async function loadAndRenderGroups() {
     const groupStatus = document.getElementById('groupStatus');
     try {
         const response = await window.api.getGroups();
         if (response.success) {
             const groups = response.data;
-            renderGroups(groups); // Renderiza a lista de grupos
-            populateCategoryFilter(groups); // Popula o dropdown de categorias
+            renderGroups(groups);
+            populateCategoryFilter(groups);
         } else {
             showStatus(groupStatus, `❌ Erro ao carregar grupos: ${response.error}`, 'error');
             renderGroups([]);
-            populateCategoryFilter([]); // Limpa o filtro de categorias em caso de erro
+            populateCategoryFilter([]);
         }
     } catch (error) {
         console.error('Erro ao carregar grupos:', error);
@@ -232,5 +237,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('addGroupBtn').addEventListener('click', addGroupHandler);
 
-    loadAndRenderGroups(); // Carrega tudo ao iniciar
+    loadAndRenderGroups();
 });
