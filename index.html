@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ManaZap Sender</title>
-    <!-- Estilos básicos para deixar a interface um pouco mais agradável -->
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -33,8 +32,8 @@
             font-weight: bold;
             color: #555;
         }
-        textarea, input[type="text"] {
-            width: calc(100% - 20px); /* Ajusta a largura para considerar o padding */
+        textarea, input[type="text"], select { /* Adicionado 'select' aqui */
+            width: calc(100% - 20px);
             padding: 10px;
             margin-bottom: 10px;
             border: 1px solid #ccc;
@@ -43,10 +42,10 @@
         }
         textarea {
             min-height: 120px;
-            resize: vertical; /* Permite redimensionar verticalmente */
+            resize: vertical;
         }
         button {
-            background-color: #28a745; /* Verde para ações primárias */
+            background-color: #28a745;
             color: white;
             padding: 10px 15px;
             border: none;
@@ -54,19 +53,19 @@
             cursor: pointer;
             font-size: 1em;
             transition: background-color 0.2s ease;
-            margin-right: 10px; /* Espaçamento entre botões */
+            margin-right: 10px;
         }
         button:hover {
             background-color: #218838;
         }
         button.secondary {
-            background-color: #007bff; /* Azul para ações secundárias */
+            background-color: #007bff;
         }
         button.secondary:hover {
             background-color: #0056b3;
         }
         button.danger {
-            background-color: #dc3545; /* Vermelho para ações de exclusão */
+            background-color: #dc3545;
         }
         button.danger:hover {
             background-color: #c82333;
@@ -76,7 +75,7 @@
             padding: 10px;
             border-radius: 4px;
             font-weight: bold;
-            display: none; /* Escondido por padrão, será exibido via JS */
+            display: none;
         }
         #messageStatus.success, #groupStatus.success {
             background-color: #d4edda;
@@ -112,6 +111,12 @@
             padding: 5px 10px;
             font-size: 0.85em;
         }
+        .group-category { /* Estilo para a categoria */
+            font-size: 0.8em;
+            color: #6c757d;
+            margin-left: 5px;
+            font-weight: normal;
+        }
     </style>
 </head>
 <body>
@@ -138,17 +143,21 @@
             <label for="groupNameInput">Nome do Grupo (para identificação):</label>
             <input type="text" id="groupNameInput" placeholder="Ex: Grupo de Teste">
         </div>
+        <!-- NOVO CAMPO: Categoria do Grupo -->
+        <div>
+            <label for="groupCategoryInput">Categoria do Grupo:</label>
+            <input type="text" id="groupCategoryInput" placeholder="Ex: Trabalho, Devocional, Família">
+            <!-- Poderíamos usar um <select> aqui com opções pré-definidas, mas um input é mais flexível por enquanto -->
+        </div>
         <button id="addGroupBtn">Adicionar Grupo</button>
         <div id="groupStatus" style="display: none;"></div>
 
         <h3>Grupos Cadastrados:</h3>
         <ul id="groupsList">
-            <!-- Os grupos serão carregados aqui pelo JavaScript -->
             <li>Nenhum grupo cadastrado ainda.</li>
         </ul>
     </div>
 
-    <!-- Inclui o script do renderer.js no final do body para garantir que o HTML esteja carregado -->
     <script src="renderer.js"></script>
 </body>
 </html>
