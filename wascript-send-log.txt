@@ -1,0 +1,3 @@
+2025-10-24T16:49:49.954Z - INFO: Iniciando envio da mensagem: "🔥📖..." para 1 grupo(s).
+2025-10-24T16:49:51.874Z - INFO: Mensagem enviada com sucesso para 5514999020909-1525305185@g.us
+2025-10-24T16:49:52.888Z - SUCCESS: Processo de envio para todos os grupos concluído.
