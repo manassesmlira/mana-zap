@@ -1,6 +1,6 @@
 // main.js
 
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron'); // Adicionado 'dialog' aqui
 const path = require('path');
 require('dotenv').config();
 
@@ -11,10 +11,20 @@ const WASCRIPT_TOKEN = process.env.WASCRIPT_TOKEN;
 
 if (!WASCRIPT_TOKEN) {
     console.error('❌ ERRO: WASCRIPT_TOKEN não encontrado no arquivo .env. Por favor, configure-o corretamente.');
+    // Usar dialog.showErrorBox aqui também é uma boa prática para o usuário final
+    dialog.showErrorBox('Erro de Configuração', 'WASCRIPT_TOKEN não encontrado no arquivo .env. Por favor, configure-o corretamente.');
     app.quit();
 }
 
 let mainWindow;
+
+// --- Manipulador de Erros Global para o Processo Principal ---
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception no processo principal:', error);
+    // Exibe uma caixa de diálogo de erro para o usuário
+    dialog.showErrorBox('Erro no Aplicativo', `Ocorreu um erro inesperado: ${error.message}\n\nVerifique o console (se aberto) ou os logs para mais detalhes.`);
+    app.quit(); // Garante que o aplicativo feche após um erro crítico
+});
 
 function createWindow() {
     mainWindow = new BrowserWindow({
@@ -32,7 +42,8 @@ function createWindow() {
 
     mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
-    // mainWindow.webContents.openDevTools();
+    // --- DESCOMENTE ESTA LINHA PARA DEPURAR O APLICATIVO EMPACOTADO ---
+    //mainWindow.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {
@@ -95,7 +106,7 @@ ipcMain.handle('delete-group', async (event, groupId) => {
 /**
  * Manipulador para enviar mensagem, agora recebendo o intervalo entre envios.
  */
-ipcMain.handle('send-message', async (event, { messageText, groupIds, intervalInSeconds }) => { // Adicionado 'intervalInSeconds' aqui
+ipcMain.handle('send-message', async (event, { messageText, groupIds, intervalInSeconds }) => {
     try {
         if (!WASCRIPT_TOKEN) {
             throw new Error('WASCRIPT_TOKEN não configurado. Verifique seu arquivo .env.');
@@ -106,13 +117,11 @@ ipcMain.handle('send-message', async (event, { messageText, groupIds, intervalIn
         if (!groupIds || groupIds.length === 0) {
             throw new Error('Nenhum grupo selecionado para envio. Adicione grupos primeiro.');
         }
-        // Validação adicional para o intervalo no backend
         if (isNaN(intervalInSeconds) || intervalInSeconds < 13) {
             throw new Error('O intervalo de envio deve ser um número e no mínimo 13 segundos.');
         }
 
         console.log(`🚀 Iniciando envio da mensagem: "${messageText.substring(0, 50)}..." para ${groupIds.length} grupo(s) com intervalo de ${intervalInSeconds}s.`);
-        // Repassa o intervalo para a função sendQuickMessage
         const results = await sendQuickMessage(messageText, groupIds, WASCRIPT_TOKEN, intervalInSeconds);
         console.log('✅ Envio concluído. Resultados:', results);
         return { success: true, data: results };

@@ -6,3 +6,5 @@ yarn-debug.log*
 .DS_Store
 Detalhes Gerais do Projeto.docx
 build/
+icon.png
+dist/

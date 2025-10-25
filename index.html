@@ -32,7 +32,7 @@
             font-weight: bold;
             color: #555;
         }
-        textarea, input[type="text"], input[type="number"], select { /* Adicionado input[type="number"] aqui */
+        textarea, input[type="text"], input[type="number"], select {
             width: calc(100% - 20px);
             padding: 10px;
             margin-bottom: 10px;
@@ -117,6 +117,15 @@
             margin-left: 5px;
             font-weight: normal;
         }
+        .bulk-import-area { /* Novo estilo para a área de importação em massa */
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        .bulk-import-area h3 {
+            margin-top: 0;
+            color: #34495e;
+        }
     </style>
 </head>
 <body>
@@ -132,7 +141,6 @@
                 <!-- As categorias serão populadas aqui pelo JavaScript -->
             </select>
         </div>
-        <!-- NOVO CAMPO: Intervalo de Envio -->
         <div>
             <label for="sendIntervalInput">Intervalo entre Envios (segundos):</label>
             <input type="number" id="sendIntervalInput" value="13" min="13" placeholder="Mínimo 13 segundos">
@@ -147,6 +155,7 @@
     <!-- Seção para Gerenciamento de Grupos -->
     <div class="section">
         <h2>Gerenciar Grupos do WhatsApp</h2>
+        <!-- Adição Individual de Grupo -->
         <div>
             <label for="groupIdInput">ID do Grupo:</label>
             <input type="text" id="groupIdInput" placeholder="Ex: 5514999020909-1525305185@g.us">
@@ -161,6 +170,18 @@
         </div>
         <button id="addGroupBtn">Adicionar Grupo</button>
         <div id="groupStatus" style="display: none;"></div>
+
+        <!-- NOVA ÁREA: Importação em Massa de Grupos -->
+        <div class="bulk-import-area">
+            <h3>Importar Vários Grupos (Copiar e Colar)</h3>
+            <p>Cole os IDs dos grupos abaixo, um por linha. Eles serão adicionados à categoria especificada acima.</p>
+            <label for="bulkGroupIdsInput">IDs dos Grupos (um por linha):</label>
+            <textarea id="bulkGroupIdsInput" placeholder="Ex:
+5511999999999@c.us
+5521888888888@g.us
+5531777777777@c.us"></textarea>
+            <button id="bulkAddGroupsBtn" class="secondary">Adicionar Grupos em Massa</button>
+        </div>
 
         <h3>Grupos Cadastrados:</h3>
         <ul id="groupsList">

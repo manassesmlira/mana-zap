@@ -103,13 +103,12 @@ async function sendMessageHandler() {
     const messageStatus = document.getElementById('messageStatus');
     const categoryFilterSelect = document.getElementById('categoryFilterSelect');
     const selectedCategory = categoryFilterSelect.value;
-    const sendIntervalInput = document.getElementById('sendIntervalInput'); // Novo input
-    let intervalInSeconds = parseInt(sendIntervalInput.value, 10); // Converte para número
+    const sendIntervalInput = document.getElementById('sendIntervalInput');
+    let intervalInSeconds = parseInt(sendIntervalInput.value, 10);
 
-    // Validação do intervalo
     if (isNaN(intervalInSeconds) || intervalInSeconds < 13) {
         showStatus(messageStatus, 'O intervalo de envio deve ser um número e no mínimo 13 segundos.', 'error');
-        sendIntervalInput.value = 13; // Reseta para o mínimo seguro
+        sendIntervalInput.value = 13;
         return;
     }
 
@@ -144,7 +143,6 @@ async function sendMessageHandler() {
 
     showStatus(messageStatus, 'Enviando mensagem...', 'secondary');
     try {
-        // Chama a função sendMessage exposta pelo preload.js, passando o intervalo
         const response = await window.api.sendMessage(messageText, groupIds, intervalInSeconds);
 
         if (response.success) {
@@ -207,6 +205,72 @@ async function deleteGroupHandler(groupId) {
     }
 }
 
+/**
+ * Manipula a importação em massa de grupos via copiar e colar.
+ */
+async function bulkAddGroupsHandler() {
+    const bulkGroupIdsInput = document.getElementById('bulkGroupIdsInput');
+    const groupCategoryInput = document.getElementById('groupCategoryInput'); // Reutiliza o campo de categoria
+    const groupStatus = document.getElementById('groupStatus');
+
+    const rawIds = bulkGroupIdsInput.value.trim();
+    const category = groupCategoryInput.value.trim();
+
+    if (!rawIds) {
+        showStatus(groupStatus, 'Por favor, cole os IDs dos grupos na área de texto.', 'error');
+        return;
+    }
+    if (!category) {
+        showStatus(groupStatus, 'Por favor, preencha a Categoria do Grupo para os grupos importados.', 'error');
+        return;
+    }
+
+    // Divide os IDs por linha, filtra linhas vazias e remove espaços em branco
+    const idsToImport = rawIds.split('\n')
+                               .map(id => id.trim())
+                               .filter(id => id !== '');
+
+    if (idsToImport.length === 0) {
+        showStatus(groupStatus, 'Nenhum ID de grupo válido encontrado para importar.', 'error');
+        return;
+    }
+
+    if (!confirm(`Tem certeza que deseja adicionar ${idsToImport.length} grupo(s) à categoria "${category}"?`)) {
+        return;
+    }
+
+    showStatus(groupStatus, `Adicionando ${idsToImport.length} grupos...`, 'secondary');
+    let successCount = 0;
+    let failCount = 0;
+
+    for (let i = 0; i < idsToImport.length; i++) {
+        const id = idsToImport[i];
+        const defaultName = `Grupo Importado ${i + 1}`; // Nome padrão para grupos importados
+
+        try {
+            const response = await window.api.addGroup(id, defaultName, category);
+            if (response.success) {
+                successCount++;
+            } else {
+                failCount++;
+                console.error(`Falha ao adicionar grupo ${id}: ${response.error}`);
+            }
+        } catch (error) {
+            failCount++;
+            console.error(`Erro inesperado ao adicionar grupo ${id}: ${error.message}`);
+        }
+    }
+
+    if (successCount > 0) {
+        showStatus(groupStatus, `✅ Importação concluída: ${successCount} grupo(s) adicionado(s), ${failCount} falha(s).`, 'success');
+        bulkGroupIdsInput.value = ''; // Limpa a área de texto após a importação
+        loadAndRenderGroups(); // Recarrega a lista para mostrar os novos grupos
+    } else {
+        showStatus(groupStatus, `❌ Nenhum grupo foi adicionado. ${failCount} falha(s).`, 'error');
+    }
+}
+
+
 async function loadAndRenderGroups() {
     const groupStatus = document.getElementById('groupStatus');
     try {
@@ -236,6 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('messageInput').value = '';
     });
     document.getElementById('addGroupBtn').addEventListener('click', addGroupHandler);
+    document.getElementById('bulkAddGroupsBtn').addEventListener('click', bulkAddGroupsHandler); // Novo event listener
 
     loadAndRenderGroups();
 });

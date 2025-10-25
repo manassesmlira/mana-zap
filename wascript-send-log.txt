@@ -38,3 +38,46 @@ _para ver as tabelas completas, confira o estudo no nosso..." para 2 grupo(s).
 [2025-10-24T19:59:55.750Z] ➡️ Tentando enviar para o grupo: 5511956483388@c.us (Grupo 2 de 2)
 [2025-10-24T19:59:57.278Z] ✅ Sucesso ao enviar para o grupo 5511956483388@c.us.
 [2025-10-24T19:59:57.279Z] 🏁 Todos os envios foram processados.
+[2025-10-24T21:16:09.155Z] ⚙️ Iniciando envio para 14 grupos com intervalo de 13 segundos.
+[2025-10-24T21:16:09.156Z] ➡️ Tentando enviar para o grupo: 5511996144534-1570465836@g.us (Grupo 1 de 14)
+[2025-10-24T21:16:10.782Z] ✅ Sucesso ao enviar para o grupo 5511996144534-1570465836@g.us.
+[2025-10-24T21:16:10.783Z] ⏳ Aguardando 13 segundos antes de enviar para o próximo grupo...
+[2025-10-24T21:16:23.789Z] ➡️ Tentando enviar para o grupo: 5511996144534-1609937668@g.us (Grupo 2 de 14)
+[2025-10-24T21:16:25.291Z] ✅ Sucesso ao enviar para o grupo 5511996144534-1609937668@g.us.
+[2025-10-24T21:16:25.291Z] ⏳ Aguardando 13 segundos antes de enviar para o próximo grupo...
+[2025-10-24T21:16:38.304Z] ➡️ Tentando enviar para o grupo: 5511996144534-1587755736@g.us (Grupo 3 de 14)
+[2025-10-24T21:16:39.579Z] ✅ Sucesso ao enviar para o grupo 5511996144534-1587755736@g.us.
+[2025-10-24T21:16:39.580Z] ⏳ Aguardando 13 segundos antes de enviar para o próximo grupo...
+[2025-10-24T21:16:52.587Z] ➡️ Tentando enviar para o grupo: 5511996144534-1568966748@g.us (Grupo 4 de 14)
+[2025-10-24T21:16:53.753Z] ✅ Sucesso ao enviar para o grupo 5511996144534-1568966748@g.us.
+[2025-10-24T21:16:53.753Z] ⏳ Aguardando 13 segundos antes de enviar para o próximo grupo...
+[2025-10-24T21:17:06.758Z] ➡️ Tentando enviar para o grupo: 5511996144534-1568966442@g.us (Grupo 5 de 14)
+[2025-10-24T21:17:08.169Z] ✅ Sucesso ao enviar para o grupo 5511996144534-1568966442@g.us.
+[2025-10-24T21:17:08.169Z] ⏳ Aguardando 13 segundos antes de enviar para o próximo grupo...
+[2025-10-24T21:17:21.185Z] ➡️ Tentando enviar para o grupo: 5511996144534-1564686169@g.us (Grupo 6 de 14)
+[2025-10-24T21:17:22.437Z] ✅ Sucesso ao enviar para o grupo 5511996144534-1564686169@g.us.
+[2025-10-24T21:17:22.438Z] ⏳ Aguardando 13 segundos antes de enviar para o próximo grupo...
+[2025-10-24T21:17:35.453Z] ➡️ Tentando enviar para o grupo: 5511996144534-1563367310@g.us (Grupo 7 de 14)
+[2025-10-24T21:17:36.833Z] ✅ Sucesso ao enviar para o grupo 5511996144534-1563367310@g.us.
+[2025-10-24T21:17:36.833Z] ⏳ Aguardando 13 segundos antes de enviar para o próximo grupo...
+[2025-10-24T21:17:49.849Z] ➡️ Tentando enviar para o grupo: 5511996144534-1556211991@g.us (Grupo 8 de 14)
+[2025-10-24T21:17:51.030Z] ✅ Sucesso ao enviar para o grupo 5511996144534-1556211991@g.us.
+[2025-10-24T21:17:51.031Z] ⏳ Aguardando 13 segundos antes de enviar para o próximo grupo...
+[2025-10-24T21:18:04.034Z] ➡️ Tentando enviar para o grupo: 5511996144534-1546428290@g.us (Grupo 9 de 14)
+[2025-10-24T21:18:05.322Z] ✅ Sucesso ao enviar para o grupo 5511996144534-1546428290@g.us.
+[2025-10-24T21:18:05.322Z] ⏳ Aguardando 13 segundos antes de enviar para o próximo grupo...
+[2025-10-24T21:18:18.338Z] ➡️ Tentando enviar para o grupo: 5511996144534-1544727542@g.us (Grupo 10 de 14)
+[2025-10-24T21:18:20.025Z] ✅ Sucesso ao enviar para o grupo 5511996144534-1544727542@g.us.
+[2025-10-24T21:18:20.025Z] ⏳ Aguardando 13 segundos antes de enviar para o próximo grupo...
+[2025-10-24T21:18:33.039Z] ➡️ Tentando enviar para o grupo: 5511996144534-1541170526@g.us (Grupo 11 de 14)
+[2025-10-24T21:18:34.322Z] ✅ Sucesso ao enviar para o grupo 5511996144534-1541170526@g.us.
+[2025-10-24T21:18:34.322Z] ⏳ Aguardando 13 segundos antes de enviar para o próximo grupo...
+[2025-10-24T21:18:47.325Z] ➡️ Tentando enviar para o grupo: 5511995746723-1531573344@g.us (Grupo 12 de 14)
+[2025-10-24T21:18:48.597Z] ✅ Sucesso ao enviar para o grupo 5511995746723-1531573344@g.us.
+[2025-10-24T21:18:48.597Z] ⏳ Aguardando 13 segundos antes de enviar para o próximo grupo...
+[2025-10-24T21:19:01.613Z] ➡️ Tentando enviar para o grupo: 5511995746723-1531502721@g.us (Grupo 13 de 14)
+[2025-10-24T21:19:02.919Z] ✅ Sucesso ao enviar para o grupo 5511995746723-1531502721@g.us.
+[2025-10-24T21:19:02.919Z] ⏳ Aguardando 13 segundos antes de enviar para o próximo grupo...
+[2025-10-24T21:19:15.932Z] ➡️ Tentando enviar para o grupo: 5511942517615-1532724276@g.us (Grupo 14 de 14)
+[2025-10-24T21:19:17.098Z] ✅ Sucesso ao enviar para o grupo 5511942517615-1532724276@g.us.
+[2025-10-24T21:19:17.109Z] 🏁 Todos os envios foram processados.
